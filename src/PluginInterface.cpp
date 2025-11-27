@@ -129,29 +129,45 @@ extern "C" void CreateReport(rapidjson::Value& request,
         }
 
         // Tfoot
-        // tfoot_rows.push_back(tr({
-        //     td({div({text("TOTAL:")})}),
-        //     td({div({text("")})}),
-        //     td({div({text("")})}),
-        //     td({div({text("")})}),
-        //     td({div({text("")})}),
-        //     td({div({text("")})}),
-        //     td({div({text("")})})
-        // }));
+        tfoot_rows.push_back(tr({
+            td({div({text("TOTAL:")})}),
+            td({div({text("")})}),
+            td({div({text("")})}),
+            td({div({text("")})}),
+            td({div({text("")})}),
+            td({div({text("")})}),
+            td({div({text("")})}),
+            td({div({text("")})}),
+            td({div({text("")})}),
+            td({div({text("")})}),
+            td({div({text("")})}),
+            td({div({text("")})}),
+            td({div({text("")})}),
+            td({div({text("")})}),
+            td({div({text("")})})
+        }));
 
-        // for (const auto& pair : totals_map) {
-        //     const Total& total = pair.second;
-        //
-        //     tfoot_rows.push_back(tr({
-        //         td({div({text("")})}),
-        //         td({div({text("")})}),
-        //         td({div({text("")})}),
-        //         td({div({text("")})}),
-        //         td({div({text("")})}),
-        //         td({div({text(format_for_AST(total.balance))})}),
-        //         td({div({text(total.currency)})}),
-        //     }));
-        // }
+        for (const auto& pair : totals_map) {
+            const Total& total = pair.second;
+
+            tfoot_rows.push_back(tr({
+                td({div({text("")})}),
+                td({div({text("")})}),
+                td({div({text("")})}),
+                td({div({text("")})}),
+                td({div({text("")})}),
+                td({div({text("")})}),
+                td({div({text(std::to_string(total.volume))})}),
+                td({div({text("")})}),
+                td({div({text("")})}),
+                td({div({text("")})}),
+                td({div({text(std::to_string(total.commission))})}),
+                td({div({text("")})}),
+                td({div({text(std::to_string(total.profit))})}),
+                td({div({text(total.currency)})}),
+                td({div({text("")})}),
+            }));
+        }
 
         return table({
             thead(thead_rows),
