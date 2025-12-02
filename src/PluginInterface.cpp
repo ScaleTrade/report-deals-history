@@ -224,25 +224,33 @@ extern "C" void CreateReport(rapidjson::Value& request,
         std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
     }
 
+    JSONObject id_column_props = {
+        {"name", JSONValue("ID")},
+        {"filter", JSONObject{{"type", JSONValue("search")}}}
+    };
+
     JSONObject order_column_props = {
         {"name", JSONValue("ORDER")},
         {"filter", JSONObject{{"type", JSONValue("search")}}}
     };
 
     JSONArray table_data;
-    for (const auto& trade : trades_vector) {
-        JSONObject trade_obj = {
-            {"order", JSONValue(std::to_string(trade.order))},
-        };
-        table_data.push_back(trade_obj);
+    for (size_t i = 0; i < trades_vector.size(); i++) {
+        const auto& trade = trades_vector[i];
+
+        table_data.emplace_back(JSONObject{
+            {"id", JSONValue(std::to_string(i))},
+            {"order", JSONValue(std::to_string(trade.order))}
+        });
     }
 
     JSONObject table_props = props({
         {"name", "MarginCallTable"},
-        {"idCol", "order"},
+        {"idCol", "id"},
         {"data", table_data},
-        {"orderBy", JSONArray{JSONValue("order"), JSONValue("DESC")}},
+        {"orderBy", JSONArray{JSONValue("id"), JSONValue("DESC")}},
         {"structure", JSONObject{
+            {"id", JSONValue(id_column_props)},
             {"order", JSONValue(order_column_props)}
         }}
     });
