@@ -234,6 +234,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
         JSONObject trade_obj = {
             {"order", JSONValue(std::to_string(trade.order))},
         };
+        table_data.push_back(trade_obj);
     }
 
     JSONObject table_props = props({
