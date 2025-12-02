@@ -224,17 +224,26 @@ extern "C" void CreateReport(rapidjson::Value& request,
         std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
     }
 
-    JSONObject id_column_props = {
-        {"name", JSONValue("ID")},
+    JSONObject order_column_props = {
+        {"name", JSONValue("ORDER")},
         {"filter", JSONObject{{"type", JSONValue("search")}}}
     };
 
+    JSONArray table_data;
+    for (const auto& trade : trades_vector) {
+        JSONObject trade_obj = {
+            {"order", JSONValue(std::to_string(trade.order))},
+        };
+    }
+
     JSONObject table_props = props({
-        {"name", "MarginCall"},
-        {"idCol", "id"},
-        {"data", JSONArray{}},
-        {"orderBy", JSONArray{JSONValue("id"), JSONValue("DESC")}},
-        {"structure", JSONObject{{"id", JSONValue(id_column_props)}}}
+        {"name", "MarginCallTable"},
+        {"idCol", "order"},
+        {"data", table_data},
+        {"orderBy", JSONArray{JSONValue("order"), JSONValue("DESC")}},
+        {"structure", JSONObject{
+            {"order", JSONValue(order_column_props)}
+        }}
     });
 
     Node table = Table({}, table_props);
