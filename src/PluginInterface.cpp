@@ -119,7 +119,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
                 {"storage", std::to_string(trade.storage)},
                 {"profit", format_double_for_AST(trade.profit)},
                 {"currency", "USD"},
-                {"name", trade.comment}
+                {"comment", trade.comment}
             });
         } else {
             double multiplier;
@@ -145,7 +145,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
                 {"storage", std::to_string(trade.storage * multiplier)},
                 {"profit", format_double_for_AST(trade.profit * multiplier)},
                 {"currency", "USD"},
-                {"name", trade.comment}
+                {"comment", trade.comment}
             });
         }
     }
