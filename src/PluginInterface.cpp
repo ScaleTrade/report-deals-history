@@ -69,6 +69,8 @@ extern "C" void CreateReport(rapidjson::Value& request,
     table_builder.EnableRefreshButton(false);
     table_builder.EnableBookmarksButton(false);
     table_builder.EnableExportButton(true);
+    table_builder.EnableTotal(true);
+    table_builder.SetTotalDataTitle("TOTAL");
 
     table_builder.AddColumn({"order", "ORDER"});
     table_builder.AddColumn({"login", "LOGIN"});
