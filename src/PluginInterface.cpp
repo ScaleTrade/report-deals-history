@@ -97,16 +97,19 @@ extern "C" void CreateReport(rapidjson::Value& request,
     
         std::string currency = get_group_currency(account.group);
 
-        double multiplier;
         if (currency == "USD") {
+            totals_map["USD"].volume += trade.volume;
+            totals_map["USD"].commission += trade.commission;
+            totals_map["USD"].profit += trade.profit;
+        } else {
+            double multiplier;
+
             server->CalculateConvertRateByCurrency(currency, "USD", trade.cmd, &multiplier);
+
+            totals_map["USD"].volume += trade.volume;
+            totals_map["USD"].commission += trade.commission * multiplier;
+            totals_map["USD"].profit += trade.profit * multiplier;
         }
-    
-        auto& total = totals_map[currency];
-        total.currency = currency;
-        total.volume += trade.volume;
-        total.commission += trade.commission;
-        total.profit += trade.profit;
 
         table_builder.AddRow({
             {"order", std::to_string(trade.order)},
@@ -126,6 +129,15 @@ extern "C" void CreateReport(rapidjson::Value& request,
             {"name", trade.comment}
         });
     }
+
+    // Total row
+    JSONArray totals_array;
+    totals_array.emplace_back(JSONObject{{"volume", totals_map["USD"].volume}});
+    totals_array.emplace_back(JSONObject{{"commission", totals_map["USD"].commission}});
+    totals_array.emplace_back(JSONObject{{"profit", totals_map["USD"].profit}});
+    totals_array.emplace_back(JSONObject{{"currency", "USD"}});
+
+    table_builder.SetTotalData(totals_array);
 
     const JSONObject table_props = table_builder.CreateTableProps();
     const Node table_node = Table({}, table_props);
