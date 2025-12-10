@@ -21,16 +21,6 @@ extern "C" void CreateReport(rapidjson::Value& request,
                              rapidjson::Value& response,
                              rapidjson::Document::AllocatorType& allocator,
                              CServerInterface* server) {
-    // Структура накопления итогов
-    struct Total {
-        double volume;
-        double commission;
-        double profit;
-        std::string currency;
-    };
-
-    std::unordered_map<std::string, Total> totals_map;
-
     std::string group_mask;
     int from;
     int to;
@@ -44,6 +34,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
         to = request["to"].GetInt();
     }
 
+    std::unordered_map<std::string, Total> totals_map;
     std::vector<TradeRecord> trades_vector;
     std::vector<GroupRecord> groups_vector;
 
@@ -71,113 +62,6 @@ extern "C" void CreateReport(rapidjson::Value& request,
         return oss.str();
     };
 
-    // v.1
-    // auto create_table = [&](const std::vector<TradeRecord>& trades) -> Node {
-    //     std::vector<Node> thead_rows;
-    //     std::vector<Node> tbody_rows;
-    //     std::vector<Node> tfoot_rows;
-    //
-    //     // Thead
-    //     thead_rows.push_back(tr({
-    //         th({div({text("Order")})}),
-    //         th({div({text("Login")})}),
-    //         th({div({text("Name")})}),
-    //         th({div({text("Time")})}),
-    //         th({div({text("Type")})}),
-    //         th({div({text("Symbol")})}),
-    //         th({div({text("Volume")})}),
-    //         th({div({text("Price")})}),
-    //         th({div({text("S / L")})}),
-    //         th({div({text("T / P")})}),
-    //         th({div({text("Commission")})}),
-    //         th({div({text("Swap")})}),
-    //         th({div({text("Profit")})}),
-    //         th({div({text("Currency")})}),
-    //         th({div({text("Comment")})}),
-    //     }));
-    //
-    //     // Tbody
-    //     for (const auto& trade : trades_vector) {
-    //         AccountRecord account;
-    //
-    //         server->GetAccountByLogin(trade.login, &account);
-    //
-    //         std::string currency = get_group_currency(account.group);
-    //
-    //         auto& total = totals_map[currency];
-    //         total.currency = currency;
-    //         total.volume += trade.volume;
-    //         total.commission += trade.commission;
-    //         total.profit += trade.profit;
-    //
-    //         tbody_rows.push_back(tr({
-    //             td({div({text(std::to_string(trade.order))})}),
-    //             td({div({text(std::to_string(trade.login))})}),
-    //             td({div({text(account.name)})}),
-    //             td({div({text(utils::FormatTimestampToString(trade.close_time))})}),
-    //             td({div({text(trade.cmd == 0 ? "buy" : "sell")})}),
-    //             td({div({text(trade.symbol)})}),
-    //             td({div({text(std::to_string(trade.volume))})}),
-    //             td({div({text(std::to_string(trade.close_price))})}),
-    //             td({div({text(std::to_string(trade.sl))})}),
-    //             td({div({text(std::to_string(trade.tp))})}),
-    //             td({div({text(std::to_string(trade.commission))})}),
-    //             td({div({text(std::to_string(trade.storage))})}),
-    //             td({div({text(format_double_for_AST(trade.profit))})}),
-    //             td({div({text(currency)})}),
-    //             td({div({text(trade.comment)})}),
-    //         }));
-    //     }
-    //
-    //     // Tfoot
-    //     tfoot_rows.push_back(tr({
-    //         td({div({text("TOTAL:")})}),
-    //         td({div({text("")})}),
-    //         td({div({text("")})}),
-    //         td({div({text("")})}),
-    //         td({div({text("")})}),
-    //         td({div({text("")})}),
-    //         td({div({text("")})}),
-    //         td({div({text("")})}),
-    //         td({div({text("")})}),
-    //         td({div({text("")})}),
-    //         td({div({text("")})}),
-    //         td({div({text("")})}),
-    //         td({div({text("")})}),
-    //         td({div({text("")})}),
-    //         td({div({text("")})})
-    //     }));
-    //
-    //     for (const auto& pair : totals_map) {
-    //         const Total& total = pair.second;
-    //
-    //         tfoot_rows.push_back(tr({
-    //             td({div({text("")})}),
-    //             td({div({text("")})}),
-    //             td({div({text("")})}),
-    //             td({div({text("")})}),
-    //             td({div({text("")})}),
-    //             td({div({text("")})}),
-    //             td({div({text(std::to_string(total.volume))})}),
-    //             td({div({text("")})}),
-    //             td({div({text("")})}),
-    //             td({div({text("")})}),
-    //             td({div({text(std::to_string(total.commission))})}),
-    //             td({div({text("")})}),
-    //             td({div({text(std::to_string(total.profit))})}),
-    //             td({div({text(total.currency)})}),
-    //             td({div({text("")})}),
-    //         }));
-    //     }
-    //
-    //     return table({
-    //         thead(thead_rows),
-    //         tbody(tbody_rows),
-    //         tfoot(tfoot_rows),
-    //     }, props({{"className", "table"}}));
-    // };
-
-    // v.2
     TableBuilder table_builder("TradesHistoryReportTable");
 
     table_builder.SetIdColumn("order");
@@ -212,6 +96,11 @@ extern "C" void CreateReport(rapidjson::Value& request,
         }
     
         std::string currency = get_group_currency(account.group);
+
+        double multiplier;
+        if (currency == "USD") {
+            server->CalculateConvertRateByCurrency(currency, "USD", trade.cmd, &multiplier);
+        }
     
         auto& total = totals_map[currency];
         total.currency = currency;
