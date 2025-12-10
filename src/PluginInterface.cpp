@@ -134,10 +134,12 @@ extern "C" void CreateReport(rapidjson::Value& request,
 
     // Total row
     JSONArray totals_array;
-    totals_array.emplace_back(JSONObject{{"volume", totals_map["USD"].volume}});
-    totals_array.emplace_back(JSONObject{{"commission", totals_map["USD"].commission}});
-    totals_array.emplace_back(JSONObject{{"profit", totals_map["USD"].profit}});
-    totals_array.emplace_back(JSONObject{{"currency", "USD"}});
+    totals_array.emplace_back(JSONObject{
+        {"volume", totals_map["USD"].volume},
+        {"commission", totals_map["USD"].commission},
+        {"profit", totals_map["USD"].profit},
+        {"currency", "USD"}
+    });
 
     table_builder.SetTotalData(totals_array);
 
