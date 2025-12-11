@@ -98,7 +98,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
         }
     
         const std::string currency = get_group_currency(account.group);
-        double multiplier;
+        double multiplier = 1;
 
         if (currency == "USD") {
             totals_map["USD"].volume += trade.volume;
@@ -124,7 +124,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
             {"type", trade.cmd == 0 ? "buy" : "sell"},
             {"symbol", trade.symbol},
             {"volume", std::to_string(trade.volume)},
-            {"close_price", std::to_string(trade.close_price)},
+            {"close_price", std::to_string(trade.close_price * multiplier)},
             {"sl", std::to_string(trade.sl)},
             {"tp", std::to_string(trade.tp)},
             {"commission", std::to_string(trade.commission * multiplier)},
