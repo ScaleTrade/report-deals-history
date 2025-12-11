@@ -98,56 +98,41 @@ extern "C" void CreateReport(rapidjson::Value& request,
         }
     
         const std::string currency = get_group_currency(account.group);
+        double multiplier;
 
         if (currency == "USD") {
             totals_map["USD"].volume += trade.volume;
             totals_map["USD"].commission += trade.commission;
             totals_map["USD"].profit += trade.profit;
-
-            table_builder.AddRow({
-                {"order", std::to_string(trade.order)},
-                {"login", std::to_string(trade.login)},
-                {"name", account.name},
-                {"close_time", utils::FormatTimestampToString(trade.close_time)},
-                {"type", trade.cmd == 0 ? "buy" : "sell"},
-                {"symbol", trade.symbol},
-                {"volume", std::to_string(trade.volume)},
-                {"close_price", std::to_string(trade.close_price)},
-                {"sl", std::to_string(trade.sl)},
-                {"tp", std::to_string(trade.tp)},
-                {"commission", std::to_string(trade.commission)},
-                {"storage", std::to_string(trade.storage)},
-                {"profit", format_double_for_AST(trade.profit)},
-                {"currency", "USD"},
-                {"comment", trade.comment}
-            });
         } else {
-            double multiplier;
-
-            server->CalculateConvertRateByCurrency(currency, "USD", trade.cmd, &multiplier);
+            try {
+                server->CalculateConvertRateByCurrency(currency, "USD", trade.cmd, &multiplier);
+            } catch (const std::exception& e) {
+                std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
+            }
 
             totals_map["USD"].volume += trade.volume;
             totals_map["USD"].commission += trade.commission * multiplier;
             totals_map["USD"].profit += trade.profit * multiplier;
-
-            table_builder.AddRow({
-                {"order", std::to_string(trade.order)},
-                {"login", std::to_string(trade.login)},
-                {"name", account.name},
-                {"close_time", utils::FormatTimestampToString(trade.close_time)},
-                {"type", trade.cmd == 0 ? "buy" : "sell"},
-                {"symbol", trade.symbol},
-                {"volume", std::to_string(trade.volume)},
-                {"close_price", std::to_string(trade.close_price)},
-                {"sl", std::to_string(trade.sl)},
-                {"tp", std::to_string(trade.tp)},
-                {"commission", std::to_string(trade.commission * multiplier)},
-                {"storage", std::to_string(trade.storage * multiplier)},
-                {"profit", format_double_for_AST(trade.profit * multiplier)},
-                {"currency", "USD"},
-                {"comment", trade.comment}
-            });
         }
+
+        table_builder.AddRow({
+            {"order", std::to_string(trade.order)},
+            {"login", std::to_string(trade.login)},
+            {"name", account.name},
+            {"close_time", utils::FormatTimestampToString(trade.close_time)},
+            {"type", trade.cmd == 0 ? "buy" : "sell"},
+            {"symbol", trade.symbol},
+            {"volume", std::to_string(trade.volume)},
+            {"close_price", std::to_string(trade.close_price)},
+            {"sl", std::to_string(trade.sl)},
+            {"tp", std::to_string(trade.tp)},
+            {"commission", std::to_string(trade.commission * multiplier)},
+            {"storage", std::to_string(trade.storage * multiplier)},
+            {"profit", format_double_for_AST(trade.profit * multiplier)},
+            {"currency", "USD"},
+            {"comment", trade.comment}
+        });
     }
 
     // Total row
