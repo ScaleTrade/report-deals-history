@@ -97,7 +97,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
             std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
         }
     
-        std::string currency = get_group_currency(account.group);
+        const std::string currency = get_group_currency(account.group);
 
         if (currency == "USD") {
             totals_map["USD"].volume += trade.volume;
