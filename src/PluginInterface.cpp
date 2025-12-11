@@ -100,8 +100,9 @@ extern "C" void CreateReport(rapidjson::Value& request,
         const std::string currency = get_group_currency(account.group);
         double multiplier = 1;
 
+        totals_map["USD"].volume += trade.volume;
+
         if (currency == "USD") {
-            totals_map["USD"].volume += trade.volume;
             totals_map["USD"].commission += trade.commission;
             totals_map["USD"].profit += trade.profit;
         } else {
@@ -111,7 +112,6 @@ extern "C" void CreateReport(rapidjson::Value& request,
                 std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
             }
 
-            totals_map["USD"].volume += trade.volume;
             totals_map["USD"].commission += trade.commission * multiplier;
             totals_map["USD"].profit += trade.profit * multiplier;
         }
