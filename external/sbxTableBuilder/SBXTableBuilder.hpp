@@ -65,7 +65,7 @@ public:
         _columns[column.key] = column.ToJSON();
     }
 
-    void AddRow(const std::map<std::string, std::string>& row_data) {
+    void AddRow(const std::map<std::string, JSONValue>& row_data) {
         JSONObject row;
         for (const auto& [key, value] : row_data) {
             row[key] = value;

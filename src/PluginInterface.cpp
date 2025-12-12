@@ -119,7 +119,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
         }
 
         table_builder.AddRow({
-            {"order", std::to_string(trade.order)},
+            {"order", JSONValue(static_cast<double>(trade.order))},
             {"login", std::to_string(trade.login)},
             {"name", account.name},
             {"open_time", utils::FormatTimestampToString(trade.open_time)},
