@@ -72,23 +72,23 @@ extern "C" void CreateReport(rapidjson::Value& request,
     table_builder.EnableTotal(true);
     table_builder.SetTotalDataTitle("TOTAL");
 
-    table_builder.AddColumn({"order", "ORDER"});
-    table_builder.AddColumn({"login", "LOGIN"});
-    table_builder.AddColumn({"name", "NAME"});
-    table_builder.AddColumn({"open_time", "OPEN_TIME"});
-    table_builder.AddColumn({"close_time", "CLOSE_TIME"});
-    table_builder.AddColumn({"type", "TYPE"});
-    table_builder.AddColumn({"symbol", "SYMBOL"});
-    table_builder.AddColumn({"volume", "VOLUME"});
-    table_builder.AddColumn({"open_price", "OPEN_PRICE"});
-    table_builder.AddColumn({"close_price", "CLOSE_PRICE"});
-    table_builder.AddColumn({"sl", "S / L"});
-    table_builder.AddColumn({"tp", "T / P"});
-    table_builder.AddColumn({"commission", "COMMISSION"});
-    table_builder.AddColumn({"storage", "SWAP"});
-    table_builder.AddColumn({"profit", "AMOUNT"});
-    table_builder.AddColumn({"currency", "CURRENCY"});
-    table_builder.AddColumn({"comment", "COMMENT"});
+    table_builder.AddColumn({"order", "ORDER" , 1});
+    table_builder.AddColumn({"login", "LOGIN", 2});
+    table_builder.AddColumn({"name", "NAME", 3});
+    table_builder.AddColumn({"open_time", "OPEN_TIME", 4});
+    table_builder.AddColumn({"close_time", "CLOSE_TIME", 5});
+    table_builder.AddColumn({"type", "TYPE",  6});
+    table_builder.AddColumn({"symbol", "SYMBOL", 7});
+    table_builder.AddColumn({"volume", "VOLUME", 8});
+    table_builder.AddColumn({"open_price", "OPEN_PRICE", 9});
+    table_builder.AddColumn({"close_price", "CLOSE_PRICE", 10});
+    table_builder.AddColumn({"sl", "S / L", 11});
+    table_builder.AddColumn({"tp", "T / P", 12});
+    table_builder.AddColumn({"commission", "COMMISSION", 13});
+    table_builder.AddColumn({"storage", "SWAP", 14});
+    table_builder.AddColumn({"profit", "AMOUNT", 15});
+    table_builder.AddColumn({"currency", "CURRENCY", 16});
+    table_builder.AddColumn({"comment", "COMMENT", 17});
 
     for (const auto& trade : trades_vector) {
         AccountRecord account;

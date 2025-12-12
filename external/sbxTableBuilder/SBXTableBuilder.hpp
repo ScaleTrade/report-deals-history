@@ -10,6 +10,7 @@ using namespace ast;
 struct TableColumn {
     std::string key;
     std::string language_token;
+    int order;
     bool is_sortable = true;
     bool is_exportable = true;
     std::string filter_type = "search";
