@@ -102,8 +102,8 @@ extern "C" void CreateReport(rapidjson::Value& request,
         }
 
         table_builder.AddRow({
-            {"order", JSONValue(utils::RoundDouble(trade.order, 0))},
-            {"login", JSONValue(utils::RoundDouble(trade.login, 0))},
+            {"order", utils::RoundDouble(trade.order, 0)},
+            {"login", utils::RoundDouble(trade.login, 0)},
             {"name", account.name},
             {"open_time", utils::FormatTimestampToString(trade.open_time)},
             {"close_time", utils::FormatTimestampToString(trade.close_time)},
@@ -111,7 +111,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
             {"symbol", trade.symbol},
             {"volume", utils::RoundDouble(trade.volume, 0)},
             {"open_price", utils::RoundDouble(trade.open_price * multiplier, 2)},
-            {"close_price", utils::RoundDouble(trade.close_price * multiplier, 3)},
+            {"close_price", utils::RoundDouble(trade.close_price * multiplier, 2)},
             {"sl", utils::RoundDouble(trade.sl, 2)},
             {"tp", utils::RoundDouble(trade.tp, 2)},
             {"commission", utils::RoundDouble(trade.commission * multiplier, 2)},
@@ -125,9 +125,9 @@ extern "C" void CreateReport(rapidjson::Value& request,
     // Total row
     JSONArray totals_array;
     totals_array.emplace_back(JSONObject{
-        {"volume", totals_map["USD"].volume},
-        {"commission", totals_map["USD"].commission},
-        {"profit", totals_map["USD"].profit},
+        {"volume", utils::RoundDouble(totals_map["USD"].volume, 0)},
+        {"commission", utils::RoundDouble(totals_map["USD"].commission, 2)},
+        {"profit", utils::RoundDouble(totals_map["USD"].profit, 2)},
         {"currency", "USD"}
     });
 
