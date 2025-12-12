@@ -10,13 +10,15 @@ using namespace ast;
 struct TableColumn {
     std::string key;
     std::string language_token;
-    int order;
+    double order;
+
     bool is_sortable = true;
     bool is_exportable = true;
     std::string filter_type = "search";
 
     std::map<std::string, JSONValue> extra_props;
     std::map<std::string, JSONValue> filter_props;
+
 
     void AddColumnProp(const std::string& name, const JSONValue& value) {
         extra_props[name] = value;
@@ -41,6 +43,7 @@ struct TableColumn {
         JSONObject column_props = {
             {"name", language_token},
             {"filter", filter},
+            {"order", order},
             {"sort", is_sortable},
             {"export", is_exportable}
         };
