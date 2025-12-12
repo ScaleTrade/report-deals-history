@@ -45,23 +45,6 @@ extern "C" void CreateReport(rapidjson::Value& request,
         std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
     }
 
-    // Лямбда для поиска валюты аккаунта по группе
-    auto get_group_currency = [&](const std::string& group_name) -> std::string {
-        for (const auto& group : groups_vector) {
-            if (group.group == group_name) {
-                return group.currency;
-            }
-        }
-        return "N/A"; // группа не найдена - валюта не определена
-    };
-
-    // Лямбда подготавливающая значения double для вставки в AST (округление до 2-х знаков)
-    auto format_double_for_AST = [](double value) -> std::string {
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(2) << value;
-        return oss.str();
-    };
-
     TableBuilder table_builder("TradesHistoryReportTable");
 
     table_builder.SetIdColumn("order");
@@ -99,7 +82,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
             std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
         }
     
-        const std::string currency = get_group_currency(account.group);
+        const std::string currency = utils::GetGroupCurrencyByName(groups_vector, account.group);
         double multiplier = 1;
 
         totals_map["USD"].volume += trade.volume;
@@ -119,21 +102,21 @@ extern "C" void CreateReport(rapidjson::Value& request,
         }
 
         table_builder.AddRow({
-            {"order", JSONValue(static_cast<double>(trade.order))},
-            {"login", std::to_string(trade.login)},
+            {"order", JSONValue(utils::RoundDouble(trade.order, 0))},
+            {"login", JSONValue(utils::RoundDouble(trade.login, 0))},
             {"name", account.name},
             {"open_time", utils::FormatTimestampToString(trade.open_time)},
             {"close_time", utils::FormatTimestampToString(trade.close_time)},
             {"type", trade.cmd == 0 ? "buy" : "sell"},
             {"symbol", trade.symbol},
-            {"volume", std::to_string(trade.volume)},
-            {"open_price", std::to_string(trade.open_price * multiplier)},
-            {"close_price", std::to_string(trade.close_price * multiplier)},
-            {"sl", std::to_string(trade.sl)},
-            {"tp", std::to_string(trade.tp)},
-            {"commission", std::to_string(trade.commission * multiplier)},
-            {"storage", std::to_string(trade.storage * multiplier)},
-            {"profit", format_double_for_AST(trade.profit * multiplier)},
+            {"volume", utils::RoundDouble(trade.volume, 0)},
+            {"open_price", utils::RoundDouble(trade.open_price * multiplier, 2)},
+            {"close_price", utils::RoundDouble(trade.close_price * multiplier, 3)},
+            {"sl", utils::RoundDouble(trade.sl, 2)},
+            {"tp", utils::RoundDouble(trade.tp, 2)},
+            {"commission", utils::RoundDouble(trade.commission * multiplier, 2)},
+            {"storage", utils::RoundDouble(trade.storage * multiplier, 2)},
+            {"profit", utils::RoundDouble(trade.profit * multiplier, 2)},
             {"currency", "USD"},
             {"comment", trade.comment}
         });
