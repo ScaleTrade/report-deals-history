@@ -102,21 +102,21 @@ extern "C" void CreateReport(rapidjson::Value& request,
         }
 
         table_builder.AddRow({
-            {"order", utils::RoundDouble(trade.order, 0)},
-            {"login", utils::RoundDouble(trade.login, 0)},
+            {"order", utils::TruncateDouble(trade.order, 0)},
+            {"login", utils::TruncateDouble(trade.login, 0)},
             {"name", account.name},
             {"open_time", utils::FormatTimestampToString(trade.open_time)},
             {"close_time", utils::FormatTimestampToString(trade.close_time)},
             {"type", trade.cmd == 0 ? "buy" : "sell"},
             {"symbol", trade.symbol},
-            {"volume", utils::RoundDouble(trade.volume, 0)},
-            {"open_price", utils::RoundDouble(trade.open_price * multiplier, 2)},
-            {"close_price", utils::RoundDouble(trade.close_price * multiplier, 2)},
-            {"sl", utils::RoundDouble(trade.sl, 2)},
-            {"tp", utils::RoundDouble(trade.tp, 2)},
-            {"commission", utils::RoundDouble(trade.commission * multiplier, 2)},
-            {"storage", utils::RoundDouble(trade.storage * multiplier, 2)},
-            {"profit", utils::RoundDouble(trade.profit * multiplier, 2)},
+            {"volume", utils::TruncateDouble(trade.volume, 0)},
+            {"open_price", utils::TruncateDouble(trade.open_price * multiplier, 2)},
+            {"close_price", utils::TruncateDouble(trade.close_price * multiplier, 2)},
+            {"sl", utils::TruncateDouble(trade.sl, 2)},
+            {"tp", utils::TruncateDouble(trade.tp, 2)},
+            {"commission", utils::TruncateDouble(trade.commission * multiplier, 2)},
+            {"storage", utils::TruncateDouble(trade.storage * multiplier, 2)},
+            {"profit", utils::TruncateDouble(trade.profit * multiplier, 2)},
             {"currency", "USD"},
             {"comment", trade.comment}
         });
@@ -125,9 +125,9 @@ extern "C" void CreateReport(rapidjson::Value& request,
     // Total row
     JSONArray totals_array;
     totals_array.emplace_back(JSONObject{
-        {"volume", utils::RoundDouble(totals_map["USD"].volume, 0)},
-        {"commission", utils::RoundDouble(totals_map["USD"].commission, 2)},
-        {"profit", utils::RoundDouble(totals_map["USD"].profit, 2)},
+        {"volume", utils::TruncateDouble(totals_map["USD"].volume, 0)},
+        {"commission", utils::TruncateDouble(totals_map["USD"].commission, 2)},
+        {"profit", utils::TruncateDouble(totals_map["USD"].profit, 2)},
         {"currency", "USD"}
     });
 
