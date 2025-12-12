@@ -75,10 +75,12 @@ extern "C" void CreateReport(rapidjson::Value& request,
     table_builder.AddColumn({"order", "ORDER"});
     table_builder.AddColumn({"login", "LOGIN"});
     table_builder.AddColumn({"name", "NAME"});
+    table_builder.AddColumn({"open_time", "OPEN_TIME"});
     table_builder.AddColumn({"close_time", "CLOSE_TIME"});
     table_builder.AddColumn({"type", "TYPE"});
     table_builder.AddColumn({"symbol", "SYMBOL"});
     table_builder.AddColumn({"volume", "VOLUME"});
+    table_builder.AddColumn({"close_price", "OPEN_PRICE"});
     table_builder.AddColumn({"close_price", "CLOSE_PRICE"});
     table_builder.AddColumn({"sl", "S / L"});
     table_builder.AddColumn({"tp", "T / P"});
@@ -120,10 +122,12 @@ extern "C" void CreateReport(rapidjson::Value& request,
             {"order", std::to_string(trade.order)},
             {"login", std::to_string(trade.login)},
             {"name", account.name},
+            {"open_time", utils::FormatTimestampToString(trade.open_time)},
             {"close_time", utils::FormatTimestampToString(trade.close_time)},
             {"type", trade.cmd == 0 ? "buy" : "sell"},
             {"symbol", trade.symbol},
             {"volume", std::to_string(trade.volume)},
+            {"close_price", std::to_string(trade.open_price * multiplier)},
             {"close_price", std::to_string(trade.close_price * multiplier)},
             {"sl", std::to_string(trade.sl)},
             {"tp", std::to_string(trade.tp)},
