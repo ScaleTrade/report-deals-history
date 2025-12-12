@@ -80,7 +80,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
     table_builder.AddColumn({"type", "TYPE"});
     table_builder.AddColumn({"symbol", "SYMBOL"});
     table_builder.AddColumn({"volume", "VOLUME"});
-    table_builder.AddColumn({"close_price", "OPEN_PRICE"});
+    table_builder.AddColumn({"open_price", "OPEN_PRICE"});
     table_builder.AddColumn({"close_price", "CLOSE_PRICE"});
     table_builder.AddColumn({"sl", "S / L"});
     table_builder.AddColumn({"tp", "T / P"});
@@ -127,7 +127,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
             {"type", trade.cmd == 0 ? "buy" : "sell"},
             {"symbol", trade.symbol},
             {"volume", std::to_string(trade.volume)},
-            {"close_price", std::to_string(trade.open_price * multiplier)},
+            {"open_price", std::to_string(trade.open_price * multiplier)},
             {"close_price", std::to_string(trade.close_price * multiplier)},
             {"sl", std::to_string(trade.sl)},
             {"tp", std::to_string(trade.tp)},
