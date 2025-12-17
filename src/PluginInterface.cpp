@@ -49,6 +49,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
 
     table_builder.SetIdColumn("order");
     table_builder.SetOrderBy("order", "DESC");
+    table_builder.EnableAutoSave(false);
     table_builder.EnableRefreshButton(false);
     table_builder.EnableBookmarksButton(false);
     table_builder.EnableExportButton(true);
@@ -102,23 +103,23 @@ extern "C" void CreateReport(rapidjson::Value& request,
         }
 
         table_builder.AddRow({
-            {"order", utils::TruncateDouble(trade.order, 0)},
-            {"login", utils::TruncateDouble(trade.login, 0)},
-            {"name", account.name},
-            {"open_time", utils::FormatTimestampToString(trade.open_time)},
-            {"close_time", utils::FormatTimestampToString(trade.close_time)},
-            {"type", trade.cmd == 0 ? "buy" : "sell"},
-            {"symbol", trade.symbol},
-            {"volume", utils::TruncateDouble(trade.volume, 0)},
-            {"open_price", utils::TruncateDouble(trade.open_price * multiplier, 2)},
-            {"close_price", utils::TruncateDouble(trade.close_price * multiplier, 2)},
-            {"sl", utils::TruncateDouble(trade.sl, 2)},
-            {"tp", utils::TruncateDouble(trade.tp, 2)},
-            {"commission", utils::TruncateDouble(trade.commission * multiplier, 2)},
-            {"storage", utils::TruncateDouble(trade.storage * multiplier, 2)},
-            {"profit", utils::TruncateDouble(trade.profit * multiplier, 2)},
-            {"currency", "USD"},
-            {"comment", trade.comment}
+            utils::TruncateDouble(trade.order, 0),
+            utils::TruncateDouble(trade.login, 0),
+            account.name,
+            utils::FormatTimestampToString(trade.open_time),
+            utils::FormatTimestampToString(trade.close_time),
+            trade.cmd == 0 ? "buy" : "sell",
+            trade.symbol,
+            utils::TruncateDouble(trade.volume, 0),
+            utils::TruncateDouble(trade.open_price * multiplier, 2),
+            utils::TruncateDouble(trade.close_price * multiplier, 2),
+            utils::TruncateDouble(trade.sl, 2),
+            utils::TruncateDouble(trade.tp, 2),
+            utils::TruncateDouble(trade.commission * multiplier, 2),
+            utils::TruncateDouble(trade.storage * multiplier, 2),
+            utils::TruncateDouble(trade.profit * multiplier, 2),
+            "USD",
+            trade.comment
         });
     }
 
