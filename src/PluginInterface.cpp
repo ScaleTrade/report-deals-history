@@ -37,6 +37,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
     std::unordered_map<std::string, Total> totals_map;
     std::vector<TradeRecord> trades_vector;
     std::vector<GroupRecord> groups_vector;
+    std::unordered_map<int, AccountRecord> accounts;
 
     try {
         server->GetCloseTradesByGroup(group_mask, from, to, &trades_vector);
@@ -76,11 +77,17 @@ extern "C" void CreateReport(rapidjson::Value& request,
 
     for (const auto& trade : trades_vector) {
         AccountRecord account;
-        
-        try {
-            server->GetAccountByLogin(trade.login, &account);
-        } catch (const std::exception& e) {
-            std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
+        auto iterator = accounts.find(trade.login);
+
+        if (iterator != accounts.end()) {
+            account = iterator->second;
+        } else {
+            try {
+                server->GetAccountByLogin(trade.login, &account);
+                accounts.insert({trade.login, account});
+            } catch (const std::exception& e) {
+                std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
+            }
         }
     
         const std::string currency = utils::GetGroupCurrencyByName(groups_vector, account.group);
