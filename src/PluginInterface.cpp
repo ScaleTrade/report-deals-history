@@ -151,6 +151,4 @@ extern "C" void CreateReport(rapidjson::Value& request,
     });
 
     utils::CreateUI(report, response, allocator);
-
-    std::cout << "DATA SENT" << std::endl;
 }
