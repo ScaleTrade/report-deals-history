@@ -4,12 +4,12 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
-#include "Structures.hpp"
+#include "Structures.h"
 #include <rapidjson/document.h>
 #include "ast/Ast.hpp"
 #include "sbxTableBuilder/SBXTableBuilder.hpp"
-#include "structures/PluginStructures.hpp"
-#include "utils/Utils.hpp"
+#include "structures/PluginStructures.h"
+#include "utils/Utils.h"
 
 using namespace ast;
 
