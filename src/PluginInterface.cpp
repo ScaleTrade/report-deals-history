@@ -46,8 +46,10 @@ extern "C" void CreateReport(rapidjson::Value& request,
         std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
     }
 
+    // Main table
     TableBuilder table_builder("TradesHistoryReportTable");
 
+    // Table props
     table_builder.SetIdColumn("order");
     table_builder.SetOrderBy("order", "DESC");
     table_builder.EnableAutoSave(false);
@@ -57,23 +59,31 @@ extern "C" void CreateReport(rapidjson::Value& request,
     table_builder.EnableTotal(true);
     table_builder.SetTotalDataTitle("TOTAL");
 
-    table_builder.AddColumn({"order", "ORDER" , 1});
-    table_builder.AddColumn({"login", "LOGIN", 2});
-    table_builder.AddColumn({"name", "NAME", 3});
-    table_builder.AddColumn({"open_time", "OPEN_TIME", 4});
-    table_builder.AddColumn({"close_time", "CLOSE_TIME", 5});
-    table_builder.AddColumn({"type", "TYPE",  6});
-    table_builder.AddColumn({"symbol", "SYMBOL", 7});
-    table_builder.AddColumn({"volume", "VOLUME", 8});
-    table_builder.AddColumn({"open_price", "OPEN_PRICE", 9});
-    table_builder.AddColumn({"close_price", "CLOSE_PRICE", 10});
-    table_builder.AddColumn({"sl", "S / L", 11});
-    table_builder.AddColumn({"tp", "T / P", 12});
-    table_builder.AddColumn({"commission", "COMMISSION", 13});
-    table_builder.AddColumn({"storage", "SWAP", 14});
-    table_builder.AddColumn({"profit", "AMOUNT", 15});
-    table_builder.AddColumn({"currency", "CURRENCY", 16});
-    table_builder.AddColumn({"comment", "COMMENT", 17});
+    // Filters
+    FilterConfig search_filter;
+    search_filter.type = FilterType::Search;
+
+    FilterConfig date_time_filter;
+    date_time_filter.type = FilterType::DateTime;
+
+    // Columns
+    table_builder.AddColumn({"order", "ORDER" , 1, search_filter});
+    table_builder.AddColumn({"login", "LOGIN", 2, search_filter});
+    table_builder.AddColumn({"name", "NAME", 3, search_filter});
+    table_builder.AddColumn({"open_time", "OPEN_TIME", 4, date_time_filter});
+    table_builder.AddColumn({"close_time", "CLOSE_TIME", 5, date_time_filter});
+    table_builder.AddColumn({"type", "TYPE",  6, search_filter});
+    table_builder.AddColumn({"symbol", "SYMBOL", 7, search_filter});
+    table_builder.AddColumn({"volume", "VOLUME", 8, search_filter});
+    table_builder.AddColumn({"open_price", "OPEN_PRICE", 9, search_filter});
+    table_builder.AddColumn({"close_price", "CLOSE_PRICE", 10, search_filter});
+    table_builder.AddColumn({"sl", "S / L", 11, search_filter});
+    table_builder.AddColumn({"tp", "T / P", 12, search_filter});
+    table_builder.AddColumn({"commission", "COMMISSION", 13, search_filter});
+    table_builder.AddColumn({"storage", "SWAP", 14, search_filter});
+    table_builder.AddColumn({"profit", "AMOUNT", 15, search_filter});
+    table_builder.AddColumn({"currency", "CURRENCY", 16, search_filter});
+    table_builder.AddColumn({"comment", "COMMENT", 17, search_filter});
 
     for (const auto& trade : trades_vector) {
         AccountRecord account;
