@@ -119,6 +119,8 @@ extern "C" void CreateReport(rapidjson::Value& request,
             totals_map["USD"].profit += trade.profit * multiplier;
         }
 
+        std::cout << "volume: " << trade.volume << std::endl;
+
         table_builder.AddRow({
             utils::TruncateDouble(trade.order, 0),
             utils::TruncateDouble(trade.login, 0),
