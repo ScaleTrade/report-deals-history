@@ -143,7 +143,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
     // Total row
     JSONArray totals_array;
     totals_array.emplace_back(JSONObject{
-        {"volume", utils::TruncateDouble(totals_map["USD"].volume, 0)},
+        {"volume", utils::TruncateDouble(totals_map["USD"].volume / 100.0, 2)},
         {"commission", utils::TruncateDouble(totals_map["USD"].commission, 2)},
         {"profit", utils::TruncateDouble(totals_map["USD"].profit, 2)},
         {"currency", "USD"}
