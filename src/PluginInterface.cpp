@@ -162,3 +162,5 @@ extern "C" void CreateReport(rapidjson::Value& request,
 
     utils::CreateUI(report, response, allocator);
 }
+
+
