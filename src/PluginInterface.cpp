@@ -2,28 +2,32 @@
 
 #include <iomanip>
 
-extern "C" void AboutReport(rapidjson::Value& request,
-                            rapidjson::Value& response,
+extern "C" void AboutReport(rapidjson::Value&                   request,
+                            rapidjson::Value&                   response,
                             rapidjson::Document::AllocatorType& allocator,
-                            CServerInterface* server) {
+                            ReportServerInterface*              server) {
     response.AddMember("version", 1, allocator);
     response.AddMember("name", Value().SetString("Trades History report", allocator), allocator);
-    response.AddMember("description",
-    Value().SetString("Summarized trades performed by a selected trader group over a specified period. "
-                                 "Includes operation ID, date, symbol, price, profit, and account details.",
-             allocator), allocator);
-    response.AddMember("type", REPORT_RANGE_GROUP_TYPE, allocator);
+    response.AddMember(
+        "description",
+        Value().SetString(
+            "Summarized trades performed by a selected trader group over a specified period. "
+            "Includes operation ID, date, symbol, price, profit, and account details.",
+            allocator),
+        allocator);
+    response.AddMember("type", static_cast<int>(ReportType::RangeGroup), allocator);
+    response.AddMember("key", Value().SetString("TRADES_HISTORY_REPORT", allocator), allocator);
 }
 
 extern "C" void DestroyReport() {}
 
-extern "C" void CreateReport(rapidjson::Value& request,
-                             rapidjson::Value& response,
+extern "C" void CreateReport(rapidjson::Value&                   request,
+                             rapidjson::Value&                   response,
                              rapidjson::Document::AllocatorType& allocator,
-                             CServerInterface* server) {
+                             ReportServerInterface*              server) {
     std::string group_mask;
-    int from;
-    int to;
+    int         from;
+    int         to;
     if (request.HasMember("group") && request["group"].IsString()) {
         group_mask = request["group"].GetString();
     }
@@ -34,10 +38,10 @@ extern "C" void CreateReport(rapidjson::Value& request,
         to = request["to"].GetInt();
     }
 
-    std::unordered_map<std::string, Total> totals_map;
-    std::vector<TradeRecord> trades_vector;
-    std::vector<GroupRecord> groups_vector;
-    std::unordered_map<int, AccountRecord> accounts;
+    std::unordered_map<std::string, Total>       totals_map;
+    std::vector<ReportTradeRecord>               trades_vector;
+    std::vector<ReportGroupRecord>               groups_vector;
+    std::unordered_map<int, ReportAccountRecord> accounts;
 
     try {
         server->GetCloseTradesByGroup(group_mask, from, to, &trades_vector);
@@ -67,12 +71,12 @@ extern "C" void CreateReport(rapidjson::Value& request,
     date_time_filter.type = FilterType::DateTime;
 
     // Columns
-    table_builder.AddColumn({"order", "ORDER" , 1, search_filter});
+    table_builder.AddColumn({"order", "ORDER", 1, search_filter});
     table_builder.AddColumn({"login", "LOGIN", 2, search_filter});
     table_builder.AddColumn({"name", "NAME", 3, search_filter});
     table_builder.AddColumn({"open_time", "OPEN_TIME", 4, date_time_filter});
     table_builder.AddColumn({"close_time", "CLOSE_TIME", 5, date_time_filter});
-    table_builder.AddColumn({"type", "TYPE",  6, search_filter});
+    table_builder.AddColumn({"type", "TYPE", 6, search_filter});
     table_builder.AddColumn({"symbol", "SYMBOL", 7, search_filter});
     table_builder.AddColumn({"volume", "VOLUME", 8, search_filter});
     table_builder.AddColumn({"open_price", "OPEN_PRICE", 9, search_filter});
@@ -86,8 +90,8 @@ extern "C" void CreateReport(rapidjson::Value& request,
     table_builder.AddColumn({"comment", "COMMENT", 17, search_filter});
 
     for (const auto& trade : trades_vector) {
-        AccountRecord account;
-        auto iterator = accounts.find(trade.login);
+        ReportAccountRecord account;
+        auto                iterator = accounts.find(trade.login);
 
         if (iterator != accounts.end()) {
             account = iterator->second;
@@ -99,9 +103,9 @@ extern "C" void CreateReport(rapidjson::Value& request,
                 std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
             }
         }
-    
-        const std::string currency = utils::GetGroupCurrencyByName(groups_vector, account.group);
-        double multiplier = 1;
+
+        const std::string currency   = utils::GetGroupCurrencyByName(groups_vector, account.group);
+        double            multiplier = 1;
 
         totals_map["USD"].volume += trade.volume;
 
@@ -110,7 +114,8 @@ extern "C" void CreateReport(rapidjson::Value& request,
             totals_map["USD"].profit += trade.profit;
         } else {
             try {
-                server->CalculateConvertRateByCurrency(currency, "USD", trade.cmd, &multiplier);
+                server->CalculateConvertRateByCurrency(
+                    currency, "USD", static_cast<int>(trade.cmd), &multiplier);
             } catch (const std::exception& e) {
                 std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
             }
@@ -119,48 +124,40 @@ extern "C" void CreateReport(rapidjson::Value& request,
             totals_map["USD"].profit += trade.profit * multiplier;
         }
 
-        table_builder.AddRow({
-            utils::TruncateDouble(trade.order, 0),
-            utils::TruncateDouble(trade.login, 0),
-            account.name,
-            utils::FormatTimestampToString(trade.open_time),
-            utils::FormatTimestampToString(trade.close_time),
-            utils::ConvertCmdToString(trade.cmd),
-            trade.symbol,
-            utils::TruncateDouble(trade.volume / 100.0, 2),
-            utils::TruncateDouble(trade.open_price * multiplier, 2),
-            utils::TruncateDouble(trade.close_price * multiplier, 2),
-            utils::TruncateDouble(trade.sl, 2),
-            utils::TruncateDouble(trade.tp, 2),
-            utils::TruncateDouble(trade.commission * multiplier, 2),
-            utils::TruncateDouble(trade.storage * multiplier, 2),
-            utils::TruncateDouble(trade.profit * multiplier, 2),
-            "USD",
-            trade.comment
-        });
+        table_builder.AddRow({utils::TruncateDouble(trade.order, 0),
+                              utils::TruncateDouble(trade.login, 0),
+                              account.name,
+                              utils::FormatTimestampToString(trade.open_time),
+                              utils::FormatTimestampToString(trade.close_time),
+                              utils::ConvertCmdToString(static_cast<int>(trade.cmd)),
+                              trade.symbol,
+                              utils::TruncateDouble(trade.volume / 100.0, 2),
+                              utils::TruncateDouble(trade.open_price * multiplier, 2),
+                              utils::TruncateDouble(trade.close_price * multiplier, 2),
+                              utils::TruncateDouble(trade.sl, 2),
+                              utils::TruncateDouble(trade.tp, 2),
+                              utils::TruncateDouble(trade.commission * multiplier, 2),
+                              utils::TruncateDouble(trade.storage * multiplier, 2),
+                              utils::TruncateDouble(trade.profit * multiplier, 2),
+                              "USD",
+                              trade.comment});
     }
 
     // Total row
     JSONArray totals_array;
-    totals_array.emplace_back(JSONObject{
-        {"volume", utils::TruncateDouble(totals_map["USD"].volume / 100.0, 2)},
-        {"commission", utils::TruncateDouble(totals_map["USD"].commission, 2)},
-        {"profit", utils::TruncateDouble(totals_map["USD"].profit, 2)},
-        {"currency", "USD"}
-    });
+    totals_array.emplace_back(
+        JSONObject{{"volume", utils::TruncateDouble(totals_map["USD"].volume / 100.0, 2)},
+                   {"commission", utils::TruncateDouble(totals_map["USD"].commission, 2)},
+                   {"profit", utils::TruncateDouble(totals_map["USD"].profit, 2)},
+                   {"currency", "USD"}});
 
     table_builder.SetTotalData(totals_array);
 
     const JSONObject table_props = table_builder.CreateTableProps();
-    const Node table_node = Table({}, table_props);
+    const Node       table_node  = Table({}, table_props);
 
     // Total report
-    const Node report = Column({
-        h1({text("Trades History Report")}),
-        table_node
-    });
+    const Node report = Column({h1({text("Trades History Report")}), table_node});
 
     utils::CreateUI(report, response, allocator);
 }
-
-
