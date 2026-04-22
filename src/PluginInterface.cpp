@@ -28,6 +28,7 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
     std::string group_mask;
     int         from;
     int         to;
+
     if (request.HasMember("group") && request["group"].IsString()) {
         group_mask = request["group"].GetString();
     }
@@ -87,15 +88,15 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
     table_builder.AddColumn({"storage", "SWAP", 14, search_filter});
     table_builder.AddColumn({"profit", "AMOUNT", 15, search_filter});
     table_builder.AddColumn({"currency", "CURRENCY", 16, search_filter});
-    table_builder.AddColumn({"group", "GROUP", 16, search_filter});
-    table_builder.AddColumn({"comment", "COMMENT", 17, search_filter});
+    table_builder.AddColumn({"group", "GROUP", 17, search_filter});
+    table_builder.AddColumn({"comment", "COMMENT", 18, search_filter});
 
     for (const auto& trade : trades_vector) {
         ReportAccountRecord account;
-        auto                iterator = accounts.find(trade.login);
+        auto                it = accounts.find(trade.login);
 
-        if (iterator != accounts.end()) {
-            account = iterator->second;
+        if (it != accounts.end()) {
+            account = it->second;
         } else {
             try {
                 server->GetAccountByLogin(trade.login, &account);
@@ -108,22 +109,19 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
         const std::string currency   = utils::GetGroupCurrencyByName(groups_vector, account.group);
         double            multiplier = 1;
 
-        totals_map["USD"].volume += trade.volume;
+        // Conversion disabled
+        // if (currency != "USD") {
+        //     try {
+        //         server->CalculateConvertRateByCurrency(
+        //             currency, "USD", static_cast<int>(trade.cmd), &multiplier);
+        //     } catch (const std::exception& e) {
+        //         std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
+        //     }
+        // }
 
-        if (currency == "USD") {
-            totals_map["USD"].commission += trade.commission;
-            totals_map["USD"].profit += trade.profit;
-        } else {
-            try {
-                server->CalculateConvertRateByCurrency(
-                    currency, "USD", static_cast<int>(trade.cmd), &multiplier);
-            } catch (const std::exception& e) {
-                std::cerr << "[TradesHistoryReportInterface]: " << e.what() << std::endl;
-            }
-
-            totals_map["USD"].commission += trade.commission * multiplier;
-            totals_map["USD"].profit += trade.profit * multiplier;
-        }
+        totals_map[currency].volume += trade.volume;
+        totals_map[currency].commission += trade.commission * multiplier;
+        totals_map[currency].profit += trade.profit * multiplier;
 
         table_builder.AddRow({utils::TruncateDouble(trade.order, 0),
                               utils::TruncateDouble(trade.login, 0),
@@ -140,18 +138,20 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
                               utils::TruncateDouble(trade.commission * multiplier, 2),
                               utils::TruncateDouble(trade.storage * multiplier, 2),
                               utils::TruncateDouble(trade.profit * multiplier, 2),
-                              "USD",
+                              currency,
                               account.group,
                               trade.comment});
     }
 
     // Total row
     JSONArray totals_array;
-    totals_array.emplace_back(
-        JSONObject{{"volume", utils::TruncateDouble(totals_map["USD"].volume / 100.0, 2)},
-                   {"commission", utils::TruncateDouble(totals_map["USD"].commission, 2)},
-                   {"profit", utils::TruncateDouble(totals_map["USD"].profit, 2)},
-                   {"currency", "USD"}});
+    for (const auto& [currency, total] : totals_map) {
+        totals_array.emplace_back(
+            JSONObject{{"volume", utils::TruncateDouble(total.volume / 100.0, 2)},
+                       {"commission", utils::TruncateDouble(total.commission, 2)},
+                       {"profit", utils::TruncateDouble(total.profit, 2)},
+                       {"currency", currency}});
+    }
 
     table_builder.SetTotalData(totals_array);
 
