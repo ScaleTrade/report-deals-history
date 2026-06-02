@@ -4,6 +4,7 @@
 #include <ctime>
 #include <iomanip>
 #include <rapidjson/document.h>
+#include <set>
 #include <sstream>
 #include <string>
 
@@ -26,4 +27,8 @@ namespace utils {
                                        const std::string&                    group_name);
 
     std::string ConvertCmdToString(const int cmd);
+
+    std::string Trim(const std::string& str);
+
+    std::set<std::string> SplitToSet(const std::string& str);
 } // namespace utils

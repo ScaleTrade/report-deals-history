@@ -12,6 +12,8 @@
 #include "sbxTableBuilder/SBXTableBuilder.hpp"
 #include "structures/ReportStructures.h"
 #include "structures/ReportType.h"
+#include "structures/ValidationResult.h"
+#include "validators/RequestValidator.h"
 #include "utils/Utils.h"
 
 using namespace ast;
